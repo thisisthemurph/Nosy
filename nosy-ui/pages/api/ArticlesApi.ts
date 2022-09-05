@@ -1,7 +1,12 @@
 import supabase from "../../config/supabase";
-import { Article, ArticleMetadata } from "../../types/Article";
+import {
+  Article,
+  ArticleMetadata,
+  ArticleCategoryGroup,
+} from "../../types/Article";
 import db from "../../config/database";
 import { Categories } from "../../types/Category";
+import { SupabaseResponse } from "./types";
 
 interface CategoryArticleMetadataFilter {
   name: string; // name of the category filtered on
@@ -64,16 +69,6 @@ export default class ArticlesApi {
     return { data: data ? data[0] : data, error };
   }
 
-  async getByCategory(category: string): Promise<ArticleResult> {
-    const { data, error } = await supabase
-      .from(db.tables.articles)
-      .select(`*, categories(id, name)`)
-      .eq("categories.name", category)
-      .limit(1);
-
-    return { data: data ? data[0] : data, error };
-  }
-
   async getAllMetadata(
     category: Categories | null = null
   ): Promise<ArticleMetadataListResult> {
@@ -109,5 +104,25 @@ export default class ArticlesApi {
       .limit(1);
 
     return { data: data ? data[0] : data, error };
+  }
+
+  async getByCategory(category: string): Promise<SupabaseResponse<Article[]>> {
+    const { data, error } = await supabase
+      .from(db.tables.articles)
+      .select(`*, categories(id, name)`)
+      .eq("categories.name", category);
+
+    return [data || [], error];
+  }
+
+  async getArticlesByCategory(
+    category: string
+  ): Promise<SupabaseResponse<ArticleCategoryGroup | null>> {
+    const { data, error } = await supabase
+      .from<ArticleCategoryGroup>(db.tables.categories)
+      .select("name, articles(*, categories(id, name))")
+      .eq("name", category);
+
+    return [data ? data[0] : null, error];
   }
 }

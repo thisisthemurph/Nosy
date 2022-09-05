@@ -1,33 +1,14 @@
 import { GetStaticPaths, GetStaticProps } from "next";
-import Meta from "../../components/Meta";
 import { Article } from "../../types/Article";
 import ArticlesApi from "../api/ArticlesApi";
+import ArticleTemplate from "../../components/Article";
 
 type Props = {
   article: Article;
 };
 
-const ArticlePage = ({
-  article: { title, content, categories, author },
-}: Props) => {
-  return (
-    <>
-      <Meta title={title} keywords={categories.map((c) => c.name)} />
-
-      <h3>{title}</h3>
-      <p className="author">
-        by <span className="author__name">{author}</span>
-      </p>
-
-      <div>
-        {categories.map((c, i) => (
-          <p key={i}>{c.name}</p>
-        ))}
-      </div>
-
-      <main className="content">{content}</main>
-    </>
-  );
+const ArticlePage = ({ article }: Props) => {
+  return <ArticleTemplate article={article} />;
 };
 
 export default ArticlePage;

@@ -1,33 +1,24 @@
 import { GetStaticPaths, GetStaticProps } from "next";
+import ArticleTemplate from "../../../components/Article";
+import ArticleList from "../../../components/ArticleList";
 import Meta from "../../../components/Meta";
 import { Article } from "../../../types/Article";
-import { Category } from "../../../types/Category";
 import ArticlesApi from "../../api/ArticlesApi";
 import CategoriesApi from "../../api/CategoryApi";
 
 type Props = {
-  article: Article;
+  articles: Article[];
 };
 
-const CategoryArticlePage = ({
-  article: { title, content, categories, author },
-}: Props) => {
+const CategoryArticlePage = ({ articles }: Props) => {
+  if (!articles || articles.length === 0) {
+    return <p>No articles</p>;
+  }
+
   return (
     <>
-      <Meta title={title} keywords={categories.map((c) => c.name)} />
-
-      <h3>{title}</h3>
-      <p className="author">
-        by <span className="author__name">{author}</span>
-      </p>
-
-      <div>
-        {categories.map((c, i) => (
-          <p key={i}>{c.name}</p>
-        ))}
-      </div>
-
-      <main className="content">{content}</main>
+      <Meta title={`Category specific page`} />
+      <ArticleList articles={articles} />
     </>
   );
 };
@@ -35,6 +26,7 @@ const CategoryArticlePage = ({
 export default CategoryArticlePage;
 
 export const getStaticProps: GetStaticProps = async (context) => {
+  // Get category from the URL parameter
   const defaultResult = {
     props: {
       article: null,
@@ -43,51 +35,66 @@ export const getStaticProps: GetStaticProps = async (context) => {
   };
 
   if (!context.params) {
+    console.error("Error building static props: could not determine params");
     return defaultResult;
   }
 
-  const category = context.params.category as string | undefined;
-
-  if (!category) {
+  const categoryParam = context.params.category as string | undefined;
+  if (!categoryParam) {
+    console.error("Error building static props: could not determine category");
     return defaultResult;
   }
 
-  const api = new ArticlesApi();
-  const { data: article, error } = await api.getByCategory(category);
+  const category = fromUrlParam(categoryParam);
+
+  // Fetch the articles associated with the category
+  const Articles = new ArticlesApi();
+  const [acg, error] = await Articles.getArticlesByCategory(category);
+
+  if (error) {
+    console.warn("Error fetching articles in getStaticProps [categories]");
+    console.error(error);
+  }
 
   return {
     props: {
       ...defaultResult.props,
-      article,
+      articles: acg?.articles || [],
     },
   };
 };
 
 export const getStaticPaths: GetStaticPaths = async (context) => {
-  const api = new CategoriesApi();
-  const { data: categories, error } = await api.get();
+  const Categories = new CategoriesApi();
+  const [categories, error] = await Categories.get();
 
-  const results = [];
-  for (const cat of categories) {
-    const { data, error } = await api.getArticlesByCategory(cat.name);
-    results.push(data);
+  if (error) {
+    console.warn("Error building paths for [category]");
+    console.error(error);
+
+    return {
+      paths: [],
+      fallback: false,
+    };
   }
 
-  // TODO: Finish making the paths for the [category]
-
-  //   const api = new ArticlesApi();
-  //   const { data: articles, error } = await api.getAllMetadata();
-
-  //   if (error) {
-  //     console.error(error);
-  //     throw Error("Error building article paths");
-  //   }
-
-  //   const slugs = articles.map((a) => a.slug);
-  //   const paths = slugs.map((slug) => ({ params: { slug } }));
+  const paths = categories.map((c) => ({
+    params: { category: toUrlParam(c.name) },
+  }));
 
   return {
-    paths: [],
+    paths,
     fallback: false,
   };
+};
+
+const toUrlParam = (name: string): string => {
+  return name.toLowerCase().replace(" ", "-");
+};
+
+const fromUrlParam = (param: string): string => {
+  return param
+    .split("-")
+    .map((x) => x.slice(0, 1).toUpperCase() + x.slice(1)) // Title case
+    .join(" ");
 };

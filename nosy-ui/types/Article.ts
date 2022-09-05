@@ -12,3 +12,8 @@ export interface ArticleMetadata {
 export interface Article extends ArticleMetadata {
   content: string;
 }
+
+export interface ArticleCategoryGroup {
+  name: string;
+  articles: Article[];
+}
