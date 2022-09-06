@@ -1,7 +1,7 @@
 import { GetStaticPaths, GetStaticProps } from "next";
-import ArticleTemplate from "../../../components/Article";
 import ArticleList from "../../../components/ArticleList";
 import Meta from "../../../components/Meta";
+import { categoryFromUrlParam, categoryToUrlParam } from "../../../helpers/categories";
 import { Article } from "../../../types/Article";
 import ArticlesApi from "../../api/ArticlesApi";
 import CategoriesApi from "../../api/CategoryApi";
@@ -45,7 +45,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
     return defaultResult;
   }
 
-  const category = fromUrlParam(categoryParam);
+  const category = categoryFromUrlParam(categoryParam);
 
   // Fetch the articles associated with the category
   const Articles = new ArticlesApi();
@@ -79,22 +79,11 @@ export const getStaticPaths: GetStaticPaths = async (context) => {
   }
 
   const paths = categories.map((c) => ({
-    params: { category: toUrlParam(c.name) },
+    params: { category: categoryToUrlParam(c.name) },
   }));
 
   return {
     paths,
     fallback: false,
   };
-};
-
-const toUrlParam = (name: string): string => {
-  return name.toLowerCase().replace(" ", "-");
-};
-
-const fromUrlParam = (param: string): string => {
-  return param
-    .split("-")
-    .map((x) => x.slice(0, 1).toUpperCase() + x.slice(1)) // Title case
-    .join(" ");
 };
