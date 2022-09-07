@@ -1,0 +1,28 @@
+.categoryList {
+  display: flex;
+  gap: 0.8rem;
+  margin: 5px 0;
+}
+
+.categoryList .category {
+  padding: 4px 8px;
+  border: solid 1px lightgray;
+  border-radius: 5px;
+
+  color: black;
+  text-decoration: none;
+}
+
+.category.category__crime {
+  color: white;
+  background-color: firebrick;
+}
+
+.category.category__featured {
+  background-color: yellow;
+}
+
+.category.category__socialnetworking {
+  color: white;
+  background-color: #1da1f2;
+}

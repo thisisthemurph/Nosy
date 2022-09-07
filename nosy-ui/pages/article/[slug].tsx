@@ -1,7 +1,7 @@
 import { GetStaticPaths, GetStaticProps } from "next";
 import { Article } from "../../types/Article";
 import ArticlesApi from "../api/ArticlesApi";
-import ArticleTemplate from "../../components/Article";
+import ArticleTemplate from "../../components/ArticleTemplate";
 
 type Props = {
   article: Article;
