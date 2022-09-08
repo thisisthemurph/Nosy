@@ -18,7 +18,6 @@ export interface Article {
 export interface MDXArticle {
   meta: ArticleMetadata;
   content: MDXRemoteSerializeResult<Record<string, unknown>, Record<string, string>>;
-  rawContent: string;
 }
 
 export interface ArticleCategoryGroup {

@@ -5,4 +5,4 @@ type PostgrestError = {
   code: string;
 };
 
-export type SupabaseResponse<T> = [T, PostgrestError | null];
+export type SupabaseResponse<T> = { data: T; error: PostgrestError | null };

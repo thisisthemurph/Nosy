@@ -20,20 +20,8 @@ const Home: NextPage<Props> = ({ articles }) => {
 export default Home;
 
 export const getStaticProps = async () => {
-  const api = new ArticlesApi();
-  const { data: articles, error } = await api.getAllMetadata();
-
-  if (error) {
-    console.warn("Error fetching articles for the home page");
-    console.error(error);
-
-    return {
-      props: {
-        articles: [],
-        error: "Unable to obtain relevant articles.",
-      },
-    };
-  }
+  const Articles = new ArticlesApi();
+  const articles = await Articles.getAllMetadata();
 
   return {
     props: {

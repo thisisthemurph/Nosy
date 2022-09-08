@@ -61,7 +61,7 @@ export default class ArticlesApi {
   async getMetadataBySlug(slug: string): Promise<ArticleMetadata | null> {
     const { data, error } = await supabase
       .from<ArticleMetadata>(db.tables.articles)
-      .select()
+      .select("id, slug, title, exerpt:content, author, categories(id, name)")
       .eq("slug", slug)
       .limit(1);
 
@@ -76,6 +76,7 @@ export default class ArticlesApi {
     }
 
     const metadata = data[0];
+    console.log({ metadata });
 
     // Only 200 characters in the exerpt
     metadata.exerpt = metadata.exerpt.slice(0, 200) + "...";
@@ -140,56 +141,40 @@ export default class ArticlesApi {
     return data;
   }
 
-  // async getAllMetadata(category: Categories | null = null): Promise<ArticleMetadataListResult> {
-  //   if (!category) {
-  //     const { data, error } = await queries.allMetadata();
+  async getAllMetadata(): Promise<ArticleMetadata[]> {
+    const { data: articles, error } = await supabase
+      .from<ArticleMetadata>(db.tables.articles)
+      .select("id, slug, title, author, createdAt, categories(id, name)");
 
-  //     if (error) {
-  //       console.warn(`Error selecting article metadata for category ${category}`);
-  //       console.error(error);
-  //       return { data: [], error };
-  //     }
+    if (error) {
+      console.error(error);
+      return [];
+    }
 
-  //     return { data: data || [], error };
-  //   }
-
-  //   const { data, error } = (await queries.allMetadataByCategory(
-  //     category
-  //   )) as CategoryArticleMetadataFilterResult;
-
-  //   return { data: data ? data[0].articles : [], error };
-  // }
+    return articles || [];
+  }
 
   async getMetadata(id: number): Promise<ArticleMetadataResult> {
     const { data, error } = await supabase
       .from<ArticleMetadata>(db.tables.articles)
-      .select(
-        `id, slug, title, author, createdAt,
-        categories(name)`
-      )
+      .select("id, slug, title, author, createdAt, categories(name)")
       .eq("id", id)
       .limit(1);
 
     return { data: data ? data[0] : data, error };
   }
 
-  async getByCategory(category: string): Promise<SupabaseResponse<Article[]>> {
-    const { data, error } = await supabase
+  async getMetadatByCategory(category: string): Promise<ArticleMetadata[]> {
+    const { data, error } = (await supabase
       .from(db.tables.articles)
-      .select(`*, categories(id, name)`)
-      .eq("categories.name", category);
+      .select("id, slug, title, exerpt:content, author, categories(id, name)")
+      .eq("categories.name", category)) as SupabaseResponse<ArticleMetadata[]>;
 
-    return [data || [], error];
-  }
+    if (error) {
+      console.error(error);
+      return [];
+    }
 
-  async getArticlesByCategory(
-    category: string
-  ): Promise<SupabaseResponse<ArticleCategoryGroup | null>> {
-    const { data, error } = await supabase
-      .from<ArticleCategoryGroup>(db.tables.categories)
-      .select("name, articles(*, categories(id, name))")
-      .eq("name", category);
-
-    return [data ? data[0] : null, error];
+    return data;
   }
 }

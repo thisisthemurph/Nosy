@@ -2,12 +2,12 @@ import { GetStaticPaths, GetStaticProps } from "next";
 import ArticleList from "../../../components/ArticleList";
 import Meta from "../../../components/Meta";
 import { categoryFromUrlParam, categoryToUrlParam } from "../../../helpers/categories";
-import { Article } from "../../../types/Article";
+import { ArticleMetadata } from "../../../types/Article";
 import ArticlesApi from "../../api/ArticlesApi";
 import CategoriesApi from "../../api/CategoryApi";
 
 type Props = {
-  articles: Article[];
+  articles: ArticleMetadata[];
 };
 
 const CategoryArticlePage = ({ articles }: Props) => {
@@ -26,48 +26,18 @@ const CategoryArticlePage = ({ articles }: Props) => {
 export default CategoryArticlePage;
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  // Get category from the URL parameter
-  const { category } = params as { category: string };
+  let { category } = params as { category: string };
+  category = categoryFromUrlParam(category);
 
-  // const categoryParam = context.params.category as string | undefined;
-
-  if (!categoryParam) {
-    console.error("Error building static props: could not determine category");
-    return defaultResult;
-  }
-
-  const category = categoryFromUrlParam(categoryParam);
-
-  // Fetch the articles associated with the category
   const Articles = new ArticlesApi();
-  const [acg, error] = await Articles.getArticlesByCategory(category);
+  const articles = await Articles.getMetadatByCategory(category);
 
-  if (error) {
-    console.warn("Error fetching articles in getStaticProps [categories]");
-    console.error(error);
-  }
-
-  return {
-    props: {
-      ...defaultResult.props,
-      articles: acg?.articles || [],
-    },
-  };
+  return { props: { articles } };
 };
 
 export const getStaticPaths: GetStaticPaths = async (context) => {
   const Categories = new CategoriesApi();
-  const [categories, error] = await Categories.get();
-
-  if (error) {
-    console.warn("Error building paths for [category]");
-    console.error(error);
-
-    return {
-      paths: [],
-      fallback: false,
-    };
-  }
+  const categories = await Categories.get();
 
   const paths = categories.map((c) => ({
     params: { category: categoryToUrlParam(c.name) },

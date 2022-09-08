@@ -36,46 +36,36 @@ const ArticlePage = ({ article }: Props) => {
 export default ArticlePage;
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const Articles = new ArticlesApi();
-
   const { slug } = params as { slug: string };
+
+  const Articles = new ArticlesApi();
   const { content: source, meta } = (await Articles.getBySlug(slug)) as Article;
 
-  const { content, data } = matter(source);
-  const mdxContent = await serialize(
-    // Raw MDX contents as a string
-    // "# hello, world",
-    content,
-    // Optional parameters
-    {
-      // made available to the arguments of any custom mdx component
-      scope: {},
-      // MDX's available options, see the MDX docs for more info.
-      // https://mdxjs.com/packages/mdx/#compilefile-options
-      mdxOptions: {
-        remarkPlugins: [],
-        rehypePlugins: [],
-        format: "mdx",
-      },
-      // Indicates whether or not to parse the frontmatter from the mdx source
-      parseFrontmatter: false,
-    }
-  );
+  console.log({ meta });
 
-  const article: MDXArticle = { meta, content: mdxContent, rawContent: content };
+  const { content } = matter(source);
+  const mdxContent = await serialize(content, {
+    // made available to the arguments of any custom mdx component
+    scope: {},
+    // MDX's available options, see the MDX docs for more info.
+    // https://mdxjs.com/packages/mdx/#compilefile-options
+    mdxOptions: {
+      remarkPlugins: [],
+      rehypePlugins: [],
+      format: "mdx",
+    },
+    // Indicates whether or not to parse the frontmatter from the mdx source
+    parseFrontmatter: false,
+  });
+
+  const article: MDXArticle = { meta, content: mdxContent };
 
   return { props: { article } };
 };
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const api = new ArticlesApi();
-  const { data: articles, error } = await api.getAllMetadata();
-
-  if (error) {
-    console.warn("There has been an error");
-    console.error(error);
-    throw Error("Error building article paths");
-  }
+  const Articles = new ArticlesApi();
+  const articles = await Articles.getAllMetadata();
 
   const slugs = articles.map((a) => a.slug);
   const paths = slugs.map((slug) => ({ params: { slug } }));
