@@ -1,9 +1,10 @@
 import supabase from "../../config/supabase";
-import { Article, ArticleMetadata, ArticleCategoryGroup } from "../../types/Article";
+
+import { Article, ArticleMetadata } from "../../types/Article";
+
 import db from "../../config/database";
-import { Categories } from "../../types/Category";
 import { SupabaseResponse } from "./types";
-import { ArticlesTable } from "../../types/Database";
+import { Categories } from "../../types/Category";
 
 interface CategoryArticleMetadataFilter {
   name: string; // name of the category filtered on
