@@ -41,8 +41,6 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const Articles = new ArticlesApi();
   const { content: source, meta } = (await Articles.getBySlug(slug)) as Article;
 
-  console.log({ meta });
-
   const { content } = matter(source);
   const mdxContent = await serialize(content, {
     // made available to the arguments of any custom mdx component
