@@ -55,16 +55,21 @@ export default class ArticlesApi {
    * @returns an array of ArtlcleMetadata - empty in the event of an error
    */
   async getMetadatByCategory(category: string): Promise<ArticleMetadata[]> {
-    const { data: articles, error } = (await supabase
-      .from(db.tables.articles)
-      .select("id, slug, title, exerpt:content, author, categories(id, name)")
-      .eq("categories.name", category)) as SupabaseResponse<ArticleMetadata[]>;
+    let { data: articles, error } = await supabase
+      .from<ArticleMetadata>(db.tables.articles)
+      .select("id, slug, title, exerpt:content, author, categories(id, name)");
 
-    if (error) {
+    // TODO: Figure out how to do this query to filter on the category names
+    // When doing `.eq("category.name", category)` it was returning all but
+    // with only the specified category in the list of categories.
+    // Current fix is to filter in JS.
+
+    if (error || articles === null) {
       console.error(error);
       return [];
     }
 
+    articles = articles.filter((a) => a.categories.map((c) => c.name).includes(category));
     return articles.map((a) => ({ ...a, exerpt: this.trimExerpt(a.exerpt) }));
   }
 
