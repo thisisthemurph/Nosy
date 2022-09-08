@@ -1,45 +1,70 @@
 import { GetStaticPaths, GetStaticProps } from "next";
-import { Article } from "../../types/Article";
+import { serialize } from "next-mdx-remote/serialize";
+import { MDXRemote } from "next-mdx-remote";
+
 import ArticlesApi from "../api/ArticlesApi";
-import ArticleTemplate from "../../components/ArticleTemplate";
+import CategoryList from "../../components/CategoryList";
+import Meta from "../../components/Meta";
+import { Article, MDXArticle } from "../../types/Article";
+
+import styles from "../../styles/ArticleTemplate.module.css";
+import matter from "gray-matter";
 
 type Props = {
-  article: Article;
+  article: MDXArticle;
 };
 
 const ArticlePage = ({ article }: Props) => {
-  return <ArticleTemplate article={article} />;
+  return (
+    <>
+      <Meta title={article.meta.title} keywords={article.meta.categories.map((c) => c.name)} />
+
+      <h3 className={styles.title}>{article.meta.title}</h3>
+      <p className={styles.author}>
+        by <span className={styles.author__name}>{article.meta.author}</span>
+      </p>
+
+      <CategoryList categories={article.meta.categories} />
+
+      <main className={styles.contentContainer}>
+        <MDXRemote {...article.content} />
+      </main>
+    </>
+  );
 };
 
 export default ArticlePage;
 
-export const getStaticProps: GetStaticProps = async (context) => {
-  const defaultResult = {
-    props: {
-      article: null,
-      fallback: false,
-    },
-  };
+export const getStaticProps: GetStaticProps = async ({ params }) => {
+  const Articles = new ArticlesApi();
 
-  if (!context.params) {
-    return defaultResult;
-  }
+  const { slug } = params as { slug: string };
+  const { content: source, meta } = (await Articles.getBySlug(slug)) as Article;
 
-  const slug = context.params.slug as string | undefined;
+  const { content, data } = matter(source);
+  const mdxContent = await serialize(
+    // Raw MDX contents as a string
+    // "# hello, world",
+    content,
+    // Optional parameters
+    {
+      // made available to the arguments of any custom mdx component
+      scope: {},
+      // MDX's available options, see the MDX docs for more info.
+      // https://mdxjs.com/packages/mdx/#compilefile-options
+      mdxOptions: {
+        remarkPlugins: [],
+        rehypePlugins: [],
+        format: "mdx",
+      },
+      // Indicates whether or not to parse the frontmatter from the mdx source
+      parseFrontmatter: false,
+    }
+  );
 
-  if (!slug) {
-    return defaultResult;
-  }
+  const article: MDXArticle = { meta, content: mdxContent, rawContent: content };
 
-  const api = new ArticlesApi();
-  const { data: article, error } = await api.getBySlug(slug);
-
-  return {
-    props: {
-      ...defaultResult.props,
-      article,
-    },
-  };
+  return { props: { article } };
 };
 
 export const getStaticPaths: GetStaticPaths = async () => {
@@ -47,6 +72,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
   const { data: articles, error } = await api.getAllMetadata();
 
   if (error) {
+    console.warn("There has been an error");
     console.error(error);
     throw Error("Error building article paths");
   }

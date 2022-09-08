@@ -25,21 +25,12 @@ const CategoryArticlePage = ({ articles }: Props) => {
 
 export default CategoryArticlePage;
 
-export const getStaticProps: GetStaticProps = async (context) => {
+export const getStaticProps: GetStaticProps = async ({ params }) => {
   // Get category from the URL parameter
-  const defaultResult = {
-    props: {
-      article: null,
-      fallback: false,
-    },
-  };
+  const { category } = params as { category: string };
 
-  if (!context.params) {
-    console.error("Error building static props: could not determine params");
-    return defaultResult;
-  }
+  // const categoryParam = context.params.category as string | undefined;
 
-  const categoryParam = context.params.category as string | undefined;
   if (!categoryParam) {
     console.error("Error building static props: could not determine category");
     return defaultResult;

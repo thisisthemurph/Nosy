@@ -1,25 +1,26 @@
-import Link from "next/link";
 import Meta from "./Meta";
-import { Article as ArticleTemplate } from "../types/Article";
-import { categoryToUrlParam } from "../helpers/categories";
+import { MDXArticle } from "../types/Article";
 import styles from "../styles/ArticleTemplate.module.css";
 import CategoryList from "./CategoryList";
+// import { MDXProvider } from "@mdx-js/react";
 
-type Props = { article: ArticleTemplate };
+type Props = { article: MDXArticle };
 
 const ArticleTemplate = ({ article }: Props) => {
   return (
     <>
-      <Meta title={article.title} keywords={article.categories.map((c) => c.name)} />
+      <Meta title={article.meta.title} keywords={article.meta.categories.map((c) => c.name)} />
 
-      <h3 className={styles.title}>{article.title}</h3>
+      <h3 className={styles.title}>{article.meta.title}</h3>
       <p className={styles.author}>
-        by <span className={styles.author__name}>{article.author}</span>
+        by <span className={styles.author__name}>{article.meta.author}</span>
       </p>
 
-      <CategoryList categories={article.categories} />
+      <CategoryList categories={article.meta.categories} />
 
-      <main className={styles.contentContainer}>{article.content}</main>
+      {/* <MDXProvider>
+        <main className={styles.contentContainer}>{article.content}</main>
+      </MDXProvider> */}
     </>
   );
 };
