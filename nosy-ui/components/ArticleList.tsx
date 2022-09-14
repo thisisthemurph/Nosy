@@ -1,7 +1,7 @@
-import { ArticleMetadata } from "../types/Article";
+import { ArticleMetadata } from "types/Article";
 import Tile from "./Tile";
 
-import styles from "../styles/TileList.module.css";
+import styles from "styles/TileList.module.css";
 
 type Props = {
   articles: ArticleMetadata[];

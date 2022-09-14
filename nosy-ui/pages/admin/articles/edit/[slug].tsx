@@ -1,10 +1,9 @@
 import { GetServerSideProps } from "next";
 import { useReducer } from "react";
 
-import ArticleForm, { ArticleFormType } from "../../../../components/ArticleForm";
-import { ArticleFormData } from "../../../../components/ArticleForm";
-import { Article } from "../../../../types/Article";
-import { getBySlug, updateArticle } from "../../../api/articles";
+import { Article } from "types/Article";
+import { getBySlug, updateArticle } from "pages/api/articles";
+import ArticleForm, { ArticleFormType, ArticleFormData } from "components/ArticleForm";
 
 const formReducer = (state: ArticleFormData, target: { name: string; value: string }) => {
   return {

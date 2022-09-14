@@ -1,8 +1,9 @@
 import type { NextPage } from "next";
 
-import { ArticleMetadata } from "../types/Article";
-import ArticleList from "../components/ArticleList";
-import { getAllMetadata } from "./api/articles";
+import ArticleList from "components/ArticleList";
+
+import { ArticleMetadata } from "types/Article";
+import { getAllMetadata } from "pages/api/articles";
 
 type Props = {
   articles: ArticleMetadata[];

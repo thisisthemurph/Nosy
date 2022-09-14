@@ -2,15 +2,15 @@ import { GetStaticPaths, GetStaticProps } from "next";
 
 import matter from "gray-matter";
 import { MDXRemote } from "next-mdx-remote";
-import { MDXArticle } from "../../types/Article";
+import { MDXArticle } from "types/Article";
 import { serialize } from "next-mdx-remote/serialize";
 
-import Meta from "../../components/Meta";
-import CategoryList from "../../components/CategoryList";
-import { getAllMetadata, getBySlug } from "../api/articles";
+import Meta from "components/Meta";
+import CategoryList from "components/CategoryList";
+import { getAllMetadata, getBySlug } from "pages/api/articles";
 
-import styles from "../../styles/ArticleTemplate.module.css";
-import mdStyles from "../../styles/Markdown.module.scss";
+import mdStyles from "styles/Markdown.module.scss";
+import styles from "styles/ArticleTemplate.module.css";
 
 type Props = {
   article: MDXArticle;

@@ -1,5 +1,6 @@
 import { NextPage } from "next";
-import Meta from "../components/Meta";
+
+import Meta from "components/Meta";
 
 const About: NextPage = () => (
   <>

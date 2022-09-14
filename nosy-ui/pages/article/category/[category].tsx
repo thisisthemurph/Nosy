@@ -1,10 +1,12 @@
 import { GetStaticPaths, GetStaticProps } from "next";
-import ArticleList from "../../../components/ArticleList";
-import Meta from "../../../components/Meta";
-import { categoryFromUrlParam, categoryToUrlParam } from "../../../helpers/categories";
-import { ArticleMetadata } from "../../../types/Article";
-import { getMetadatByCategory } from "../../api/articles";
-import { getAllCategories } from "../../api/categories";
+
+import Meta from "components/Meta";
+import ArticleList from "components/ArticleList";
+
+import { ArticleMetadata } from "types/Article";
+import { getAllCategories } from "pages/api/categories";
+import { getMetadatByCategory } from "pages/api/articles";
+import { categoryFromUrlParam, categoryToUrlParam } from "helpers/categories";
 
 type Props = {
   articles: ArticleMetadata[];

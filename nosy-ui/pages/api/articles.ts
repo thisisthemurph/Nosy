@@ -1,7 +1,8 @@
-import db from "../../config/database";
-import supabase from "../../config/supabase";
-import { Article, ArticleMetadata } from "../../types/Article";
-import { ArticlesTable } from "../../types/Database";
+import db from "config/database";
+import supabase from "config/supabase";
+
+import { ArticlesTable } from "types/Database";
+import { Article, ArticleMetadata } from "types/Article";
 
 /**
  * Retrieves all metadata from the database

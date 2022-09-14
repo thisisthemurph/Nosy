@@ -1,6 +1,7 @@
-import { ArticleMetadata } from "../types/Article";
-import styles from "../styles/Tile.module.css";
 import Link from "next/link";
+
+import { ArticleMetadata } from "types/Article";
+import styles from "styles/Tile.module.css";
 
 type Props = {
   article: ArticleMetadata;

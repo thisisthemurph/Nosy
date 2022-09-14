@@ -1,5 +1,5 @@
-import { db, supabase } from "../../config";
-import { Category } from "../../types/Category";
+import { db, supabase } from "config";
+import { Category } from "types/Category";
 
 export const getAllCategories = async (): Promise<Category[]> => {
   const { data: categories, error } = await supabase

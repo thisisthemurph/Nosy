@@ -1,6 +1,6 @@
-import Meta from "./Meta";
-import styles from "../styles/Main.module.css";
-import Header from "./Header";
+import Meta from "components/Meta";
+import Header from "components/Header";
+import styles from "styles/Main.module.css";
 
 type Props = {
   children: JSX.Element;

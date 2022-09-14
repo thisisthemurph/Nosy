@@ -1,7 +1,8 @@
-import Nav from "./Nav";
-import { join } from "../helpers/css";
-import main from "../styles/Main.module.css";
-import styles from "../styles/Header.module.scss";
+import Nav from "components/Nav";
+
+import { join } from "helpers/css";
+import main from "styles/Main.module.css";
+import styles from "styles/Header.module.scss";
 
 const Header = () => {
   return (

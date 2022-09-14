@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { useState } from "react";
-import { join } from "../helpers/css";
-import styles from "../styles/Nav.module.scss";
+
+import { join } from "helpers/css";
+import styles from "styles/Nav.module.scss";
 
 const Nav = () => {
   const [isOpen, setIsOpen] = useState(false);

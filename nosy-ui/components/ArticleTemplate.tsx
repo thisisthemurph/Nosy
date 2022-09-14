@@ -1,8 +1,8 @@
-import Meta from "./Meta";
-import { MDXArticle } from "../types/Article";
-import styles from "../styles/ArticleTemplate.module.css";
-import CategoryList from "./CategoryList";
-// import { MDXProvider } from "@mdx-js/react";
+import Meta from "components/Meta";
+import CategoryList from "components/CategoryList";
+import { MDXArticle } from "types/Article";
+
+import styles from "styles/ArticleTemplate.module.css";
 
 type Props = { article: MDXArticle };
 

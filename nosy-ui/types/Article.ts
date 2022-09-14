@@ -1,5 +1,6 @@
-import { Category } from "./Category";
 import { MDXRemoteSerializeResult } from "next-mdx-remote";
+
+import { Category } from "types/Category";
 
 export interface ArticleMetadata {
   id: number;

@@ -1,7 +1,9 @@
 import Link from "next/link";
-import { categoryToUrlParam } from "../helpers/categories";
-import { Category } from "../types/Category";
-import styles from "../styles/CategoryList.module.css";
+
+import { Category } from "types/Category";
+import { categoryToUrlParam } from "helpers/categories";
+
+import styles from "styles/CategoryList.module.css";
 
 type Props = { categories: Category[] };
 
