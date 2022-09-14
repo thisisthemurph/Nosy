@@ -4,7 +4,7 @@ import Meta from "../../../components/Meta";
 import { categoryFromUrlParam, categoryToUrlParam } from "../../../helpers/categories";
 import { ArticleMetadata } from "../../../types/Article";
 import { getMetadatByCategory } from "../../api/articles";
-import CategoriesApi from "../../api/CategoryApi";
+import { getAllCategories } from "../../api/categories";
 
 type Props = {
   articles: ArticleMetadata[];
@@ -35,8 +35,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 };
 
 export const getStaticPaths: GetStaticPaths = async (context) => {
-  const Categories = new CategoriesApi();
-  const categories = await Categories.get();
+  const categories = await getAllCategories();
 
   const paths = categories.map((c) => ({
     params: { category: categoryToUrlParam(c.name) },
