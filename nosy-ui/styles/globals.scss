@@ -12,7 +12,8 @@ p,
 figure,
 blockquote,
 dl,
-dd {
+dd,
+fieldset {
   margin: 0;
 }
 
@@ -75,4 +76,12 @@ select {
 
 .main-container {
   margin: 5rem;
+}
+
+/** Button Styles **/
+
+button {
+  cursor: pointer;
+  padding: 0.75rem 1.25rem;
+  border-radius: 3px;
 }

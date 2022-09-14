@@ -39,7 +39,7 @@ const MenuButton = ({ click }: MenuButtonProps) => {
   return (
     <button className={styles.menuBtn} aria-label="Menu" onClick={click}>
       <svg height="15" viewBox="0 0 24 15" width="24" xmlns="http://www.w3.org/2000/svg">
-        <g fill="#fff" fill-rule="evenodd">
+        <g fill="#fff">
           <path d="m0 0h16v1h-16z"></path>
           <path d="m0 7h24v1h-24z"></path>
           <path d="m0 14h20v1h-20z"></path>
@@ -56,7 +56,6 @@ const CloseButton = ({ click }: CloseButtonProps) => {
     <button className={styles.closeBtn} aria-label="Close" onClick={click}>
       <svg
         fill="currentcolor"
-        fill-rule="evenodd"
         height="20px"
         viewBox="0 0 24 24"
         width="20px"
