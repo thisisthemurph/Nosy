@@ -46,6 +46,7 @@
   }
 
   &:disabled {
+    cursor: not-allowed;
     border-color: lightgray;
     background-color: lightgray;
   }
@@ -55,5 +56,10 @@
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
+  align-items: center;
   column-gap: 0.5rem;
+}
+
+.smallSuccess {
+  color: rgb(115, 107, 139);
 }

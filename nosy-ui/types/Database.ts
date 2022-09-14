@@ -1,7 +1,7 @@
 export interface ArticlesTable {
-  id: number;
+  id?: number;
   slug: string;
-  createdAt: string;
+  createdAt?: string;
   title: string;
   content: string;
   author: string;

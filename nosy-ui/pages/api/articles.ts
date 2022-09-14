@@ -1,6 +1,7 @@
 import db from "../../config/database";
 import supabase from "../../config/supabase";
 import { Article, ArticleMetadata } from "../../types/Article";
+import { ArticlesTable } from "../../types/Database";
 
 /**
  * Retrieves all metadata from the database
@@ -120,6 +121,41 @@ export const getBySlug = async (slug: string): Promise<Article | null> => {
   };
 
   return article;
+};
+
+export const saveArticle = async (
+  article: ArticlesTable
+): Promise<{ success: boolean; message?: string }> => {
+  const existingArticle = await getBySlug(article.slug);
+  if (existingArticle !== null) {
+    return { success: false, message: "An article already exists with the given slug" };
+  }
+
+  const { error } = await supabase.from(db.tables.articles).insert({ ...article });
+
+  if (error) {
+    console.error(error);
+    return { success: false, message: "There has been an issue saving the article" };
+  }
+
+  return { success: true };
+};
+
+export const updateArticle = async (
+  articleId: number,
+  newArticleData: ArticlesTable
+): Promise<boolean> => {
+  // Ensure the ID isn't submitted
+  delete newArticleData.id;
+
+  const { error } = await supabase.from("articles").update(newArticleData).eq("id", articleId);
+
+  if (error) {
+    console.error(error);
+    return false;
+  }
+
+  return true;
 };
 
 const trimExerpt = (content: string): string => {
