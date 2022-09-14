@@ -3,7 +3,7 @@ import ArticleList from "../../../components/ArticleList";
 import Meta from "../../../components/Meta";
 import { categoryFromUrlParam, categoryToUrlParam } from "../../../helpers/categories";
 import { ArticleMetadata } from "../../../types/Article";
-import ArticlesApi from "../../api/ArticlesApi";
+import { getMetadatByCategory } from "../../api/articles";
 import CategoriesApi from "../../api/CategoryApi";
 
 type Props = {
@@ -29,8 +29,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   let { category } = params as { category: string };
   category = categoryFromUrlParam(category);
 
-  const Articles = new ArticlesApi();
-  const articles = await Articles.getMetadatByCategory(category);
+  const articles = await getMetadatByCategory(category);
 
   return { props: { articles } };
 };

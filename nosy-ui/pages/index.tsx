@@ -2,7 +2,7 @@ import type { NextPage } from "next";
 
 import { ArticleMetadata } from "../types/Article";
 import ArticleList from "../components/ArticleList";
-import ArticlesApi from "./api/ArticlesApi";
+import { getAllMetadata } from "./api/articles";
 
 type Props = {
   articles: ArticleMetadata[];
@@ -20,8 +20,7 @@ const Home: NextPage<Props> = ({ articles }) => {
 export default Home;
 
 export const getStaticProps = async () => {
-  const Articles = new ArticlesApi();
-  const articles = await Articles.getAllMetadata();
+  const articles = await getAllMetadata();
 
   return {
     props: {

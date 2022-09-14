@@ -2,10 +2,10 @@ import { GetStaticPaths, GetStaticProps } from "next";
 import { serialize } from "next-mdx-remote/serialize";
 import { MDXRemote } from "next-mdx-remote";
 
-import ArticlesApi from "../api/ArticlesApi";
-import CategoryList from "../../components/CategoryList";
 import Meta from "../../components/Meta";
-import { Article, MDXArticle } from "../../types/Article";
+import CategoryList from "../../components/CategoryList";
+import { getAllMetadata, getBySlug } from "../api/articles";
+import { MDXArticle } from "../../types/Article";
 
 import styles from "../../styles/ArticleTemplate.module.css";
 import matter from "gray-matter";
@@ -38,8 +38,12 @@ export default ArticlePage;
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { slug } = params as { slug: string };
 
-  const Articles = new ArticlesApi();
-  const { content: source, meta } = (await Articles.getBySlug(slug)) as Article;
+  const article = await getBySlug(slug);
+  if (article === null) {
+    return { notFound: true };
+  }
+
+  const { content: source, meta } = article;
 
   const { content } = matter(source);
   const mdxContent = await serialize(content, {
@@ -56,14 +60,12 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     parseFrontmatter: false,
   });
 
-  const article: MDXArticle = { meta, content: mdxContent };
-
-  return { props: { article } };
+  const mdxArticle: MDXArticle = { meta, content: mdxContent };
+  return { props: { article: mdxArticle } };
 };
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const Articles = new ArticlesApi();
-  const articles = await Articles.getAllMetadata();
+  const articles = await getAllMetadata();
 
   const slugs = articles.map((a) => a.slug);
   const paths = slugs.map((slug) => ({ params: { slug } }));
