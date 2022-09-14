@@ -26,15 +26,12 @@ const NewArticlePage = () => {
   };
 
   return (
-    <>
-      <h2>{formData.title || "New Article"}</h2>
-      <ArticleForm
-        formData={formData}
-        setFormData={setFormData}
-        formType={ArticleFormType.Create}
-        primaryButtonClick={handleSave}
-      />
-    </>
+    <ArticleForm
+      formData={formData}
+      setFormData={setFormData}
+      formType={ArticleFormType.Create}
+      primaryButtonClick={handleSave}
+    />
   );
 };
 

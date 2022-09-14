@@ -55,16 +55,13 @@ const EditArticlePage = ({ article }: Props) => {
   }
 
   return (
-    <>
-      <h2>{formData.title || "\u00A0"}</h2>
-      <ArticleForm
-        formData={formData}
-        setFormData={setFormData}
-        formType={ArticleFormType.Edit}
-        primaryButtonClick={handleUpdate}
-        primaryActionSuccessMessage="Saved"
-      />
-    </>
+    <ArticleForm
+      formData={formData}
+      setFormData={setFormData}
+      formType={ArticleFormType.Edit}
+      primaryButtonClick={handleUpdate}
+      primaryActionSuccessMessage="Saved"
+    />
   );
 };
 

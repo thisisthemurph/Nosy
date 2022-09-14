@@ -1,7 +1,13 @@
-import { ChangeEvent, Dispatch, useState } from "react";
+import { ChangeEvent, Dispatch, useEffect, useState } from "react";
+
+import matter from "gray-matter";
+import { serialize } from "next-mdx-remote/serialize";
+import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
 
 import { join } from "../helpers/css";
-import styles from "../styles/NewArticle.module.scss";
+import styles from "../styles/ArticleForm.module.scss";
+import mdStyles from "../styles/Markdown.module.scss";
+import panelStyles from "../styles/Panel.module.scss";
 
 export interface ArticleFormData {
   id?: number;
@@ -15,6 +21,8 @@ export enum ArticleFormType {
   Create = 0,
   Edit,
 }
+
+type MDXContent = MDXRemoteSerializeResult<Record<string, unknown>, Record<string, string>>;
 
 type Props = {
   formType: ArticleFormType;
@@ -36,6 +44,15 @@ const ArticleForm = ({
 }: Props) => {
   const [primaryButtonActive, setPrimaryButtonActive] = useState(false);
   const [actionCompleteMessage, setActionCompleteMessage] = useState("");
+  const [mdx, setMdx] = useState<MDXContent>();
+
+  useEffect(() => {
+    const init = async () => {
+      setMdx(await markdownToHtml(formData.content));
+    };
+
+    init();
+  }, []);
 
   const titleToSlug = (title: string): string => {
     // TODO: Enure special characters are not in the URL
@@ -63,68 +80,102 @@ const ArticleForm = ({
     setTimeout(() => setActionCompleteMessage(""), 15000);
   };
 
+  const markdownToHtml = async (source: string): Promise<MDXContent> => {
+    const { content } = matter(source);
+
+    const mdxContent = await serialize(content, {
+      // made available to the arguments of any custom mdx component
+      scope: {},
+      // MDX's available options, see the MDX docs for more info.
+      // https://mdxjs.com/packages/mdx/#compilefile-options
+      mdxOptions: {
+        remarkPlugins: [],
+        rehypePlugins: [],
+        format: "mdx",
+      },
+      // Indicates whether or not to parse the frontmatter from the mdx source
+      parseFrontmatter: false,
+    });
+
+    return mdxContent;
+  };
+
   return (
-    <form className={styles.form}>
-      <fieldset>
-        <label htmlFor="title">Title: </label>
-        <input
-          type="text"
-          name="title"
-          id="title"
-          placeholder="The title of the article"
-          value={formData.title}
-          onChange={handleChange}
-        />
-      </fieldset>
+    <>
+      <div className={panelStyles.panelContainer}>
+        <div className={panelStyles.panel}>
+          <form className={styles.form}>
+            <fieldset>
+              <label htmlFor="title">Title: </label>
+              <input
+                type="text"
+                name="title"
+                id="title"
+                placeholder="The title of the article"
+                value={formData.title}
+                onChange={handleChange}
+              />
+            </fieldset>
 
-      <fieldset>
-        <label htmlFor="title">Slug: </label>
-        <input
-          type="text"
-          name="slug"
-          id="slug"
-          placeholder="The URL identifier for the article"
-          value={formData.slug}
-          onChange={handleChange}
-        />
-      </fieldset>
+            <fieldset>
+              <label htmlFor="title">Slug: </label>
+              <input
+                type="text"
+                name="slug"
+                id="slug"
+                placeholder="The URL identifier for the article"
+                value={formData.slug}
+                onChange={handleChange}
+              />
+            </fieldset>
 
-      <fieldset>
-        <label htmlFor="content">Content: </label>
-        <textarea
-          name="content"
-          id="content"
-          placeholder="Write the body of the content here"
-          value={formData.content}
-          onChange={handleChange}
-        ></textarea>
-      </fieldset>
+            <fieldset>
+              <label htmlFor="content">Content: </label>
+              <textarea
+                name="content"
+                id="content"
+                placeholder="Write the body of the content here"
+                value={formData.content}
+                onChange={async (e) => {
+                  handleChange(e);
+                  setMdx(await markdownToHtml(e.target.value));
+                }}
+              ></textarea>
+            </fieldset>
 
-      <fieldset>
-        <label htmlFor="author">Author: </label>
-        <input
-          name="author"
-          id="author"
-          placeholder="Who are you?"
-          value={formData.author}
-          onChange={handleChange}
-        ></input>
-      </fieldset>
+            <fieldset>
+              <label htmlFor="author">Author: </label>
+              <input
+                name="author"
+                id="author"
+                placeholder="Who are you?"
+                value={formData.author}
+                onChange={handleChange}
+              ></input>
+            </fieldset>
 
-      <fieldset className={styles.test}>
-        <section className={styles.buttonGroup}>
-          <p className={styles.smallSuccess}>{actionCompleteMessage}</p>
-          <button
-            type="submit"
-            onClick={handlePrimaryButtonClick}
-            disabled={!primaryButtonActive}
-            className={join(styles.btn, styles.btn__primary)}
-          >
-            {formType == ArticleFormType.Create ? "Create" : "Edit"}
-          </button>
-        </section>
-      </fieldset>
-    </form>
+            <fieldset className={styles.test}>
+              <section className={styles.buttonGroup}>
+                <p className={styles.smallSuccess}>{actionCompleteMessage}</p>
+                <button
+                  type="submit"
+                  onClick={handlePrimaryButtonClick}
+                  disabled={!primaryButtonActive}
+                  className={join(styles.btn, styles.btn__primary)}
+                >
+                  {formType == ArticleFormType.Create ? "Create" : "Edit"}
+                </button>
+              </section>
+            </fieldset>
+          </form>
+        </div>
+
+        <div className={panelStyles.panel}>
+          <h3>{formData.title}</h3>
+          <div className={mdStyles.markdown}>{mdx && <MDXRemote {...mdx} />}</div>
+        </div>
+      </div>
+    </>
   );
 };
 

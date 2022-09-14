@@ -34,7 +34,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   return { props: { articles } };
 };
 
-export const getStaticPaths: GetStaticPaths = async (context) => {
+export const getStaticPaths: GetStaticPaths = async () => {
   const categories = await getAllCategories();
 
   const paths = categories.map((c) => ({

@@ -1,14 +1,16 @@
 import { GetStaticPaths, GetStaticProps } from "next";
-import { serialize } from "next-mdx-remote/serialize";
+
+import matter from "gray-matter";
 import { MDXRemote } from "next-mdx-remote";
+import { MDXArticle } from "../../types/Article";
+import { serialize } from "next-mdx-remote/serialize";
 
 import Meta from "../../components/Meta";
 import CategoryList from "../../components/CategoryList";
 import { getAllMetadata, getBySlug } from "../api/articles";
-import { MDXArticle } from "../../types/Article";
 
 import styles from "../../styles/ArticleTemplate.module.css";
-import matter from "gray-matter";
+import mdStyles from "../../styles/Markdown.module.scss";
 
 type Props = {
   article: MDXArticle;
@@ -26,7 +28,7 @@ const ArticlePage = ({ article }: Props) => {
 
       <CategoryList categories={article.meta.categories} />
 
-      <main className={styles.contentContainer}>
+      <main className={mdStyles.markdown}>
         <MDXRemote {...article.content} />
       </main>
     </>
