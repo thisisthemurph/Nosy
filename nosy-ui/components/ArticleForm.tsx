@@ -8,6 +8,8 @@ import { join } from "helpers/css";
 import mdStyles from "styles/Markdown.module.scss";
 import panelStyles from "styles/Panel.module.scss";
 import articleStyles from "styles/ArticleForm.module.scss";
+import Panel from "./Panel";
+import PanelContainer from "./PanelContainer";
 
 export interface ArticleFormData {
   id?: number;
@@ -22,7 +24,10 @@ export enum ArticleFormType {
   Edit,
 }
 
-type MDXContent = MDXRemoteSerializeResult<Record<string, unknown>, Record<string, string>>;
+type MDXContent = MDXRemoteSerializeResult<
+  Record<string, unknown>,
+  Record<string, string>
+>;
 
 type Props = {
   formType: ArticleFormType;
@@ -101,81 +106,79 @@ const ArticleForm = ({
   };
 
   return (
-    <>
-      <div className={panelStyles.panelContainer}>
-        <div className={panelStyles.panel}>
-          <form className={articleStyles.form}>
-            <fieldset>
-              <label htmlFor="title">Title: </label>
-              <input
-                type="text"
-                name="title"
-                id="title"
-                placeholder="The title of the article"
-                value={formData.title}
-                onChange={handleChange}
-              />
-            </fieldset>
+    <PanelContainer>
+      <Panel>
+        <form className={articleStyles.form}>
+          <fieldset>
+            <label htmlFor="title">Title: </label>
+            <input
+              type="text"
+              name="title"
+              id="title"
+              placeholder="The title of the article"
+              value={formData.title}
+              onChange={handleChange}
+            />
+          </fieldset>
 
-            <fieldset>
-              <label htmlFor="title">Slug: </label>
-              <input
-                type="text"
-                name="slug"
-                id="slug"
-                placeholder="The URL identifier for the article"
-                value={formData.slug}
-                onChange={handleChange}
-              />
-            </fieldset>
+          <fieldset>
+            <label htmlFor="title">Slug: </label>
+            <input
+              type="text"
+              name="slug"
+              id="slug"
+              placeholder="The URL identifier for the article"
+              value={formData.slug}
+              onChange={handleChange}
+            />
+          </fieldset>
 
-            <fieldset className={articleStyles.primary}>
-              <label htmlFor="content">Content: </label>
-              <textarea
-                name="content"
-                id="content"
-                placeholder="Write the body of the content here"
-                value={formData.content}
-                onChange={async (e) => {
-                  handleChange(e);
-                  setMdx(await markdownToHtml(e.target.value));
-                }}
-              ></textarea>
-            </fieldset>
+          <fieldset className={articleStyles.primary}>
+            <label htmlFor="content">Content: </label>
+            <textarea
+              name="content"
+              id="content"
+              placeholder="Write the body of the content here"
+              value={formData.content}
+              onChange={async (e) => {
+                handleChange(e);
+                setMdx(await markdownToHtml(e.target.value));
+              }}
+            ></textarea>
+          </fieldset>
 
-            <fieldset>
-              <label htmlFor="author">Author: </label>
-              <input
-                name="author"
-                id="author"
-                placeholder="Who are you?"
-                value={formData.author}
-                onChange={handleChange}
-              ></input>
-            </fieldset>
+          <fieldset>
+            <label htmlFor="author">Author: </label>
+            <input
+              name="author"
+              id="author"
+              placeholder="Who are you?"
+              value={formData.author}
+              onChange={handleChange}
+            ></input>
+          </fieldset>
 
-            <fieldset className={articleStyles.test}>
-              <section className={articleStyles.buttonGroup}>
-                <p className={articleStyles.smallSuccess}>{actionCompleteMessage}</p>
-                <button
-                  type="submit"
-                  onClick={handlePrimaryButtonClick}
-                  disabled={!primaryButtonActive}
-                  className={join(articleStyles.btn, articleStyles.btn__primary)}
-                >
-                  {formType == ArticleFormType.Create ? "Create" : "Edit"}
-                </button>
-              </section>
-            </fieldset>
-          </form>
-        </div>
+          <fieldset className={articleStyles.test}>
+            <section className={articleStyles.buttonGroup}>
+              <p className={articleStyles.smallSuccess}>{actionCompleteMessage}</p>
+              <button
+                type="submit"
+                onClick={handlePrimaryButtonClick}
+                disabled={!primaryButtonActive}
+                className={join(articleStyles.btn, articleStyles.btn__primary)}
+              >
+                {formType == ArticleFormType.Create ? "Create" : "Edit"}
+              </button>
+            </section>
+          </fieldset>
+        </form>
+      </Panel>
 
-        <div className={panelStyles.panel}>
-          <h3>{formData.title}</h3>
-          <div className={mdStyles.markdown}>{mdx && <MDXRemote {...mdx} />}</div>
-        </div>
-      </div>
-    </>
+      <Panel>
+        <h3>{formData.title}</h3>
+        <div className={mdStyles.markdown}>{mdx && <MDXRemote {...mdx} />}</div>
+      </Panel>
+    </PanelContainer>
   );
 };
 

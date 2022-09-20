@@ -1,8 +1,56 @@
-.panelContainer {
-  display: flex;
-  width: 100%;
-  max-height: 91vh;
-  overflow: hidden;
+$head-top-padding: 0.25rem;
+$head-bottom-padding: 0.375rem;
+
+.panel {
+  &__container {
+    margin-top: -3rem;
+
+    position: relative;
+    border: solid 1px rgb(143, 143, 143);
+
+    header {
+      display: flex;
+      justify-content: center;
+      justify-content: flex-end;
+
+      color: white;
+      padding: $head-top-padding 1rem;
+      padding-bottom: $head-bottom-padding;
+      background-color: rgb(143, 143, 143);
+
+      button {
+        padding: 0;
+        border: none;
+        background: none;
+        color: white;
+        font-size: 1.5rem;
+      }
+    }
+
+    & .panel__content {
+      display: flex;
+      width: 100%;
+      max-height: 82vh;
+      overflow: hidden;
+    }
+
+    &--fullScreen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+
+      margin: 0;
+      background-color: white;
+      border: none;
+
+      & .panel__content {
+        $height: calc(100vh - (36px + $head-top-padding + $head-bottom-padding));
+        max-height: $height;
+      }
+    }
+  }
 }
 
 .panel {
