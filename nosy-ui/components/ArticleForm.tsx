@@ -5,9 +5,9 @@ import { serialize } from "next-mdx-remote/serialize";
 import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
 
 import { join } from "helpers/css";
-import styles from "styles/ArticleForm.module.scss";
 import mdStyles from "styles/Markdown.module.scss";
 import panelStyles from "styles/Panel.module.scss";
+import articleStyles from "styles/ArticleForm.module.scss";
 
 export interface ArticleFormData {
   id?: number;
@@ -104,7 +104,7 @@ const ArticleForm = ({
     <>
       <div className={panelStyles.panelContainer}>
         <div className={panelStyles.panel}>
-          <form className={styles.form}>
+          <form className={articleStyles.form}>
             <fieldset>
               <label htmlFor="title">Title: </label>
               <input
@@ -129,7 +129,7 @@ const ArticleForm = ({
               />
             </fieldset>
 
-            <fieldset>
+            <fieldset className={articleStyles.primary}>
               <label htmlFor="content">Content: </label>
               <textarea
                 name="content"
@@ -154,14 +154,14 @@ const ArticleForm = ({
               ></input>
             </fieldset>
 
-            <fieldset className={styles.test}>
-              <section className={styles.buttonGroup}>
-                <p className={styles.smallSuccess}>{actionCompleteMessage}</p>
+            <fieldset className={articleStyles.test}>
+              <section className={articleStyles.buttonGroup}>
+                <p className={articleStyles.smallSuccess}>{actionCompleteMessage}</p>
                 <button
                   type="submit"
                   onClick={handlePrimaryButtonClick}
                   disabled={!primaryButtonActive}
-                  className={join(styles.btn, styles.btn__primary)}
+                  className={join(articleStyles.btn, articleStyles.btn__primary)}
                 >
                   {formType == ArticleFormType.Create ? "Create" : "Edit"}
                 </button>

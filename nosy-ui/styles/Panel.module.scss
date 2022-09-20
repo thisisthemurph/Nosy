@@ -1,9 +1,12 @@
 .panelContainer {
   display: flex;
   width: 100%;
+  max-height: 91vh;
+  overflow: hidden;
 }
 
 .panel {
+  overflow-y: scroll;
   width: 100%;
   padding: 1rem;
 }
