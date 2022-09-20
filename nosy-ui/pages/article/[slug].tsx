@@ -19,7 +19,10 @@ type Props = {
 const ArticlePage = ({ article }: Props) => {
   return (
     <>
-      <Meta title={article.meta.title} keywords={article.meta.categories.map((c) => c.name)} />
+      <Meta
+        title={article.meta.title}
+        keywords={article.meta.categories.map((c) => c.name)}
+      />
 
       <h3 className={styles.title}>{article.meta.title}</h3>
       <p className={styles.author}>

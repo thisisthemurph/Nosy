@@ -26,7 +26,9 @@ export const getAllMetadata = async (): Promise<ArticleMetadata[]> => {
  * @param slug the slug of the article metadata to be fetched
  * @returns ArticleMetadata or `null` in the event of an error
  */
-export const getMetadataBySlug = async (slug: string): Promise<ArticleMetadata | null> => {
+export const getMetadataBySlug = async (
+  slug: string
+): Promise<ArticleMetadata | null> => {
   const { data, error } = await supabase
     .from<ArticleMetadata>(db.tables.articles)
     .select("id, slug, title, exerpt:content, author, categories(id, name)")
@@ -54,7 +56,9 @@ export const getMetadataBySlug = async (slug: string): Promise<ArticleMetadata |
  * @param category to be filtered on
  * @returns an array of ArtlcleMetadata - empty in the event of an error
  */
-export const getMetadatByCategory = async (category: string): Promise<ArticleMetadata[]> => {
+export const getMetadatByCategory = async (
+  category: string
+): Promise<ArticleMetadata[]> => {
   let { data: articles, error } = await supabase
     .from<ArticleMetadata>(db.tables.articles)
     .select("id, slug, title, exerpt:content, author, categories(id, name)");
@@ -129,14 +133,20 @@ export const saveArticle = async (
 ): Promise<{ success: boolean; message?: string }> => {
   const existingArticle = await getBySlug(article.slug);
   if (existingArticle !== null) {
-    return { success: false, message: "An article already exists with the given slug" };
+    return {
+      success: false,
+      message: "An article already exists with the given slug",
+    };
   }
 
   const { error } = await supabase.from(db.tables.articles).insert({ ...article });
 
   if (error) {
     console.error(error);
-    return { success: false, message: "There has been an issue saving the article" };
+    return {
+      success: false,
+      message: "There has been an issue saving the article",
+    };
   }
 
   return { success: true };
@@ -149,7 +159,10 @@ export const updateArticle = async (
   // Ensure the ID isn't submitted
   delete newArticleData.id;
 
-  const { error } = await supabase.from("articles").update(newArticleData).eq("id", articleId);
+  const { error } = await supabase
+    .from("articles")
+    .update(newArticleData)
+    .eq("id", articleId);
 
   if (error) {
     console.error(error);
