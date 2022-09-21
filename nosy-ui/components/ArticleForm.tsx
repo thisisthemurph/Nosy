@@ -4,12 +4,12 @@ import matter from "gray-matter";
 import { serialize } from "next-mdx-remote/serialize";
 import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
 
-import { join } from "helpers/css";
-import mdStyles from "styles/Markdown.module.scss";
-import panelStyles from "styles/Panel.module.scss";
-import articleStyles from "styles/ArticleForm.module.scss";
 import Panel from "./Panel";
 import PanelContainer from "./PanelContainer";
+
+import { join } from "helpers/css";
+import mdStyles from "styles/Markdown.module.scss";
+import articleStyles from "styles/ArticleForm.module.scss";
 
 export interface ArticleFormData {
   id?: number;
