@@ -11,7 +11,7 @@ import { Article, ArticleMetadata } from "types/Article";
 export const getAllMetadata = async (): Promise<ArticleMetadata[]> => {
   const { data: articles, error } = await supabase
     .from<ArticleMetadata>(db.tables.articles)
-    .select("id, slug, title, exerpt:content, author, categories(id, name)");
+    .select("id, slug, title, exerpt:content, categories(id, name)");
 
   if (error) {
     console.error(error);
