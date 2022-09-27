@@ -7,11 +7,11 @@ export async function middleware(request: NextRequest) {
 
 	if (authed) {
 		console.log("middleware - authenticated");
-		return NextResponse.redirect(new URL("/auth/login", request.url));
+		return NextResponse.next();
 	}
 
 	console.log("middleware - not authenticated");
-	return NextResponse.next();
+	return NextResponse.redirect(new URL("/auth/login", request.url));
 }
 
 async function isAuthenticated(req: NextRequest): Promise<boolean> {
