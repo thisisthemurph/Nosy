@@ -1,70 +1,108 @@
-import { Session } from "@supabase/supabase-js";
-import { createContext, Dispatch, useContext, useReducer } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import {
+	ApiError,
+	AuthChangeEvent,
+	Provider,
+	Session,
+	User,
+	UserCredentials,
+} from "@supabase/supabase-js";
 
-export enum ReducerActionType {
-	Login = "LOGIN",
-	Logout = "LOGOUT",
+import { supabase } from "config";
+
+interface SupabaseAuthContext {
+	user: User | null;
+	signUp: (data: UserCredentials) => Promise<{
+		user: User | null;
+		session: Session | null;
+		error: ApiError | null;
+	}>;
+	signIn: (data: UserCredentials) => Promise<{
+		session: Session | null;
+		user: User | null;
+		provider?: Provider | undefined;
+		url?: string | null | undefined;
+		error: ApiError | null;
+	}>;
+	signOut: () => Promise<{ error: ApiError | null }>;
+	isAuthenticated: () => boolean;
 }
 
-export type ReducerAction = { type: ReducerActionType; value: any };
-
-const authReducer = (state: Session | null, action: ReducerAction) => {
-	switch (action.type) {
-		case ReducerActionType.Login:
-			console.log("Logging in");
-
-			if (!state) return null;
-
-			console.log("Storing the session in local storage");
-			localStorage.setItem("session", JSON.stringify(state));
-			return state;
-
-		case ReducerActionType.Logout:
-			console.log("Logging out");
-			return null;
-
-		default:
-			return state;
-	}
+const defaultValue: SupabaseAuthContext = {
+	user: null,
+	signUp: () =>
+		new Promise((resolve) =>
+			resolve({
+				user: null,
+				session: null,
+				error: null,
+			})
+		),
+	signIn: () =>
+		new Promise((resolve) =>
+			resolve({
+				session: null,
+				user: null,
+				provider: undefined,
+				url: undefined,
+				error: null,
+			})
+		),
+	signOut: () => new Promise((resolve) => resolve({ error: null })),
+	isAuthenticated: () => false,
 };
 
-const initialState = {
-	session: null,
+const AuthContext = createContext<SupabaseAuthContext>(defaultValue);
+
+type SupabaseAuthProviderProps = { children: React.ReactNode };
+
+export const SupabaseAuthProvider = ({ children }: SupabaseAuthProviderProps) => {
+	const [user, setUser] = useState<User | null>(null);
+	const [loading, setLoading] = useState(false);
+
+	useEffect(() => {
+		const setCookie = async (event: AuthChangeEvent, session: Session) => {
+			await fetch("/api/auth/set", {
+				method: "POST",
+				headers: new Headers({ "Content-Type": "application/json" }),
+				credentials: "same-origin",
+				body: JSON.stringify({ event, session }),
+			});
+		};
+
+		const session = supabase.auth.session();
+
+		setUser(session?.user ?? null);
+		setLoading(true);
+
+		const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+			setUser(session?.user ?? null);
+			setLoading(false);
+
+			if (session !== null) {
+				setCookie(event, session).catch(console.error);
+			}
+		});
+
+		return () => listener?.unsubscribe();
+	}, []);
+
+	const handleSignOut = async (): Promise<{ error: ApiError | null }> => {
+		await fetch("/api/auth/remove", { method: "POST" });
+		return supabase.auth.signOut();
+	};
+
+	const value = {
+		user,
+		signUp: (data: UserCredentials) => supabase.auth.signUp(data),
+		signIn: (data: UserCredentials) => supabase.auth.signIn(data),
+		signOut: handleSignOut,
+		isAuthenticated: () => !!supabase.auth.session(),
+	};
+
+	return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-export const AuthContext = createContext<{
-	state: { session: Session | null };
-	dispatch: Dispatch<ReducerAction>;
-}>({
-	state: initialState,
-	dispatch: () => null,
-});
-
-type Props = {
-	children: JSX.Element;
+export const useSupabaseAuth = () => {
+	return useContext(AuthContext);
 };
-
-export function AuthProvider({ children }: Props) {
-	const [session, setSession] = useReducer(authReducer, null);
-
-	return (
-		<AuthContext.Provider
-			value={{
-				state: { session },
-				dispatch: setSession,
-			}}
-		>
-			{children}
-		</AuthContext.Provider>
-	);
-}
-
-export function useAuth() {
-	const context = useContext(AuthContext);
-
-	if (!context) {
-		throw new Error("useAuth must be used inside an `Auth Provider`");
-	}
-
-	return context;
-}

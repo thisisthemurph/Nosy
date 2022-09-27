@@ -1,44 +1,55 @@
 import { ChangeEvent, FormEvent, useReducer, useState } from "react";
 import { useRouter } from "next/router";
 
+import { supabase } from "config";
 import { useSupabaseAuth } from "contexts/AuthContext";
 
-interface LoginFormData {
+interface RegisterFormData {
+	username: string;
 	email: string;
 	password: string;
 }
 
-const formReducer = (state: LoginFormData, target: { name: string; value: string }) => {
+const formReducer = (
+	state: RegisterFormData,
+	target: { name: string; value: string }
+) => {
 	return {
 		...state,
 		[target.name]: target.value,
 	};
 };
 
-const Login = () => {
-	const router = useRouter();
+const Register = () => {
 	const auth = useSupabaseAuth();
+	const router = useRouter();
 
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | undefined>();
 	const [formData, setFormData] = useReducer(formReducer, {
+		username: "",
 		email: "",
 		password: "",
 	});
 
-	const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
+	const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		console.log("Clicked Login");
+		console.log("Clicked Register");
 
-		const { user, session, error } = await auth.signIn(formData);
-		console.log({ user, session, error });
+		const { user, error } = await supabase.auth.signUp(formData);
+		console.log({ user, error });
 
 		if (error) {
 			setError(error.message);
 			return;
 		}
 
-		router.push("/admin");
+		if (user?.email) {
+			router.push(`/auth/login?email=${user.email}`);
+			return;
+		}
+
+		router.push(`/auth/login`);
 	};
 
 	const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -49,7 +60,18 @@ const Login = () => {
 		<>
 			{error && <p>{error}</p>}
 
-			<form action="" className="form" onSubmit={handleLogin}>
+			<form className="form" onSubmit={handleSubmit}>
+				<fieldset>
+					<label htmlFor="username">Name: </label>
+					<input
+						type="username"
+						name="username"
+						id="username"
+						className="username"
+						value={formData.username}
+						onChange={handleChange}
+					/>
+				</fieldset>
 				<fieldset>
 					<label htmlFor="email">Email: </label>
 					<input
@@ -73,12 +95,12 @@ const Login = () => {
 					/>
 				</fieldset>
 				<fieldset>
-					<button type="submit">Login</button>
+					<button type="submit">Sign up</button>
 				</fieldset>
-				<pre>{JSON.stringify({ auth }, null, 4)}</pre>
+				<pre>{JSON.stringify(auth, null, 4)}</pre>
 			</form>
 		</>
 	);
 };
 
-export default Login;
+export default Register;

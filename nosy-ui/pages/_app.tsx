@@ -1,16 +1,16 @@
 import type { AppProps } from "next/app";
 
 import Layout from "components/Layout";
+import { SupabaseAuthProvider } from "contexts/AuthContext";
 import "styles/globals.scss";
-import { AuthProvider } from "contexts/AuthContext";
 
 function MyApp({ Component, pageProps }: AppProps) {
 	return (
-		<Layout>
-			<AuthProvider>
+		<SupabaseAuthProvider>
+			<Layout>
 				<Component {...pageProps} />
-			</AuthProvider>
-		</Layout>
+			</Layout>
+		</SupabaseAuthProvider>
 	);
 }
 
