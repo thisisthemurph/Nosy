@@ -9,9 +9,17 @@ import {
 } from "@supabase/supabase-js";
 
 import { supabase } from "config";
+import { useProfile } from "hooks/useProfile";
+import { ProfileTable } from "types/Database";
 
 interface SupabaseAuthContext {
 	user: User | null;
+	profile: ProfileTable | null;
+	loadingProfile: boolean;
+	updateProfile: {
+		username: (username: string) => Promise<void>;
+		email: (email: string, password: string) => Promise<void>;
+	};
 	signUp: (data: UserCredentials) => Promise<{
 		user: User | null;
 		session: Session | null;
@@ -30,6 +38,12 @@ interface SupabaseAuthContext {
 
 const defaultValue: SupabaseAuthContext = {
 	user: null,
+	profile: null,
+	loadingProfile: false,
+	updateProfile: {
+		username: (username: string) => new Promise((resolve) => resolve()),
+		email: (email: string) => new Promise((resolve) => resolve()),
+	},
 	signUp: () =>
 		new Promise((resolve) =>
 			resolve({
@@ -59,6 +73,7 @@ type SupabaseAuthProviderProps = { children: React.ReactNode };
 export const SupabaseAuthProvider = ({ children }: SupabaseAuthProviderProps) => {
 	const [user, setUser] = useState<User | null>(null);
 	const [loading, setLoading] = useState(false);
+	const { loading: loadingProfile, profile, update: updateProfile } = useProfile(user);
 
 	useEffect(() => {
 		const setCookie = async (event: AuthChangeEvent, session: Session) => {
@@ -94,6 +109,9 @@ export const SupabaseAuthProvider = ({ children }: SupabaseAuthProviderProps) =>
 
 	const value = {
 		user,
+		profile,
+		loadingProfile,
+		updateProfile,
 		signUp: (data: UserCredentials) => supabase.auth.signUp(data),
 		signIn: (data: UserCredentials) => supabase.auth.signIn(data),
 		signOut: handleSignOut,
