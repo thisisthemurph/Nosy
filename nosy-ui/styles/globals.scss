@@ -90,7 +90,10 @@ button {
 
 form {
 	display: flex;
+	flex-direction: column;
 	row-gap: 0.75rem;
+
+	width: 100%;
 
 	fieldset {
 		display: flex;

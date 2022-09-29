@@ -17,8 +17,9 @@ interface SupabaseAuthContext {
 	profile: ProfileTable | null;
 	loadingProfile: boolean;
 	updateProfile: {
-		username: (username: string) => Promise<void>;
+		avatar: (avatar: string) => Promise<void>;
 		email: (email: string, password: string) => Promise<void>;
+		username: (username: string) => Promise<void>;
 	};
 	signUp: (data: UserCredentials) => Promise<{
 		user: User | null;
@@ -41,8 +42,9 @@ const defaultValue: SupabaseAuthContext = {
 	profile: null,
 	loadingProfile: false,
 	updateProfile: {
-		username: (username: string) => new Promise((resolve) => resolve()),
+		avatar: (avatar: string) => new Promise((resolve) => resolve()),
 		email: (email: string) => new Promise((resolve) => resolve()),
+		username: (username: string) => new Promise((resolve) => resolve()),
 	},
 	signUp: () =>
 		new Promise((resolve) =>

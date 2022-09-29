@@ -1,5 +1,6 @@
+import Avatar from "components/Avatar";
 import { useSupabaseAuth } from "contexts/AuthContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useForm, SubmitHandler } from "react-hook-form";
 import styles from "styles/Profile.module.scss";
@@ -11,10 +12,17 @@ interface IFormInput {
 }
 
 const Profile = () => {
+	const [avatar, setAvatar] = useState<string>("");
 	const { user, profile, loadingProfile, updateProfile } = useSupabaseAuth();
 	const [currentPasswordRequired, setCurrentPasswordRequired] = useState<false | string>(
 		false
 	);
+
+	useEffect(() => {
+		if (profile?.avatar) {
+			setAvatar(profile.avatar);
+		}
+	}, [profile?.avatar]);
 
 	const { register, handleSubmit } = useForm<IFormInput>();
 
@@ -23,8 +31,6 @@ const Profile = () => {
 
 		await updateProfile.username(data.username);
 		await updateProfile.email(data.email, data.currentPassword);
-
-		console.log("Upadted the username");
 	};
 
 	const handleEmailChange = (value: string) => {
@@ -48,17 +54,18 @@ const Profile = () => {
 		};
 	};
 
+	const handleAvatarChange = async (avatar: string) => {
+		await updateProfile.avatar(avatar);
+		setAvatar(avatar);
+	};
+
 	if (!user || loadingProfile || !profile) {
 		return <h3>Loading... = {`${loadingProfile}`}</h3>;
 	}
 
 	return (
 		<form className={styles.profileContainer} onSubmit={handleSubmit(onSubmit)}>
-			<img
-				className={styles.avatar}
-				src={`data:image/png;base64, ${profile.avatar}`}
-				alt="profile image"
-			/>
+			<Avatar avatar={avatar} onSelect={handleAvatarChange} />
 
 			<fieldset>
 				<label htmlFor="username">Username: </label>

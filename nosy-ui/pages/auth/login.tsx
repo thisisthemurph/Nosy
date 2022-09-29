@@ -49,7 +49,7 @@ const Login = () => {
 		<>
 			{error && <p>{error}</p>}
 
-			<form action="" className="form" onSubmit={handleLogin}>
+			<form onSubmit={handleLogin}>
 				<fieldset>
 					<label htmlFor="email">Email: </label>
 					<input

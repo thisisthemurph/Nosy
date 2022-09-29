@@ -75,9 +75,32 @@ export const useProfile = (user: User | null) => {
 		console.log(result);
 	};
 
+	const updateAvatar = async (avatar: string): Promise<void> => {
+		if (!profile?.id || profile.avatar === avatar) {
+			return;
+		}
+
+		const updates = {
+			id: profile.id,
+			avatar,
+		};
+
+		const { error } = await supabase
+			.from("profiles")
+			.update(updates, { returning: "minimal" });
+
+		if (error) {
+			console.error(error);
+		}
+	};
+
 	return {
 		loading,
 		profile,
-		update: { username: updateUsername, email: updateEmail },
+		update: {
+			avatar: updateAvatar,
+			email: updateEmail,
+			username: updateUsername,
+		},
 	};
 };
