@@ -9,18 +9,18 @@ import {
 } from "@supabase/supabase-js";
 
 import { supabase } from "config";
-import { useProfile } from "hooks/useProfile";
-import { ProfileTable } from "types/Database";
+// import { useProfile } from "hooks/useProfile";
+import { ProfileAttributes, ProfileUser } from "types/User";
 
 interface SupabaseAuthContext {
-	user: User | null;
-	profile: ProfileTable | null;
-	loadingProfile: boolean;
-	updateProfile: {
-		avatar: (avatar: string) => Promise<void>;
-		email: (email: string, password: string) => Promise<void>;
-		username: (username: string) => Promise<void>;
-	};
+	profile: ProfileUser | null;
+	// updateProfile: {
+	// 	avatar: (avatar: string) => Promise<void>;
+	// 	email: (email: string, password: string) => Promise<void>;
+	// 	username: (username: string) => Promise<void>;
+	// };
+	getProfileAttributes: () => ProfileAttributes;
+	updateProfileAttributes: (attributes: ProfileAttributes) => void;
 	signUp: (data: UserCredentials) => Promise<{
 		user: User | null;
 		session: Session | null;
@@ -38,13 +38,15 @@ interface SupabaseAuthContext {
 }
 
 const defaultValue: SupabaseAuthContext = {
-	user: null,
 	profile: null,
-	loadingProfile: false,
-	updateProfile: {
-		avatar: (avatar: string) => new Promise((resolve) => resolve()),
-		email: (email: string) => new Promise((resolve) => resolve()),
-		username: (username: string) => new Promise((resolve) => resolve()),
+	// updateProfile: {
+	// 	avatar: (avatar: string) => new Promise((resolve) => resolve()),
+	// 	email: (email: string) => new Promise((resolve) => resolve()),
+	// 	username: (username: string) => new Promise((resolve) => resolve()),
+	// },
+	getProfileAttributes: () => ({ username: undefined, avatarName: undefined }),
+	updateProfileAttributes: (attributes: ProfileAttributes) => {
+		return;
 	},
 	signUp: () =>
 		new Promise((resolve) =>
@@ -75,7 +77,7 @@ type SupabaseAuthProviderProps = { children: React.ReactNode };
 export const SupabaseAuthProvider = ({ children }: SupabaseAuthProviderProps) => {
 	const [user, setUser] = useState<User | null>(null);
 	const [loading, setLoading] = useState(false);
-	const { loading: loadingProfile, profile, update: updateProfile } = useProfile(user);
+	// const { update: updateProfile } = useProfile(user);
 
 	useEffect(() => {
 		const setCookie = async (event: AuthChangeEvent, session: Session) => {
@@ -109,16 +111,37 @@ export const SupabaseAuthProvider = ({ children }: SupabaseAuthProviderProps) =>
 		return supabase.auth.signOut();
 	};
 
-	const value = {
-		user,
-		profile,
-		loadingProfile,
-		updateProfile,
+	const updateProfileAttributes = async (attributes: ProfileAttributes) => {
+		const { error } = await supabase.auth.update({ data: attributes });
+
+		if (error) {
+			console.error(error);
+		}
+	};
+
+	const getProfileAttributes = (): ProfileAttributes => {
+		return user?.user_metadata as ProfileAttributes;
+	};
+
+	const value: SupabaseAuthContext = {
+		profile: null,
+		getProfileAttributes: getProfileAttributes,
+		updateProfileAttributes: updateProfileAttributes,
 		signUp: (data: UserCredentials) => supabase.auth.signUp(data),
 		signIn: (data: UserCredentials) => supabase.auth.signIn(data),
 		signOut: handleSignOut,
 		isAuthenticated: () => !!supabase.auth.session(),
 	};
+
+	if (user) {
+		const profile: ProfileUser = {
+			...user,
+			username: user?.user_metadata.username as string,
+			avatarName: user?.user_metadata.avatarName as string,
+		};
+
+		value.profile = profile;
+	}
 
 	return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
