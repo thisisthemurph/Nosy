@@ -48,7 +48,7 @@ const Nav = () => {
 					</a>
 				</Link>
 
-				{auth?.user && (
+				{auth.profile && (
 					<button className="signOut" onClick={handleSignOut}>
 						Log out
 					</button>

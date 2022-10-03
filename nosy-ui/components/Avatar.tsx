@@ -2,29 +2,33 @@ import { supabase } from "config";
 import { useEffect, useState } from "react";
 
 import CloseButton from "./CloseButton";
+import { ProfileAvatar } from "types/User";
 
 import styles from "styles/Avatar.module.scss";
 
-interface Avatar {
-	name: string;
-	avatar: string;
-}
-
-type Props = { avatar: string; onSelect: (avatar: string) => void };
+type Props = { avatar: string | null; onSelect: (avatar: ProfileAvatar) => void };
 
 const Avatar = ({ avatar, onSelect }: Props) => {
-	const [avatars, setAvatars] = useState<Avatar[]>([]);
 	const [editing, setEditing] = useState(false);
+	const [avatars, setAvatars] = useState<ProfileAvatar[]>([]);
+	const [defaultAvatar, setDefaultAvatar] = useState<string>("");
 
 	useEffect(() => {
 		getAllAvatars()
-			.then((a) => setAvatars(a))
+			.then((avatars) => {
+				setAvatars(avatars);
+				return avatars;
+			})
+			.then((avatars) => {
+				const da = avatars.find((a) => a.name === "Default")?.avatar ?? "";
+				setDefaultAvatar(da);
+			})
 			.catch(console.error);
 	});
 
 	const getAllAvatars = async () => {
 		const { data: allAvatars, error } = await supabase
-			.from<Avatar>("avatars")
+			.from<ProfileAvatar>("avatars")
 			.select("name, avatar");
 
 		if (error) {
@@ -40,15 +44,18 @@ const Avatar = ({ avatar, onSelect }: Props) => {
 		return allAvatars;
 	};
 
-	const handleAvatarSelect = (avatar: string) => {
-		onSelect(avatar);
+	const handleAvatarSelect = (profileAvatar: ProfileAvatar) => {
+		onSelect(profileAvatar);
 		setEditing(false);
 	};
 
 	return (
 		<>
 			<button className={styles.avatar} onClick={() => setEditing(!editing)}>
-				<img src={`data:image/png;base64, ${avatar}`} alt="profile image" />
+				<img
+					src={`data:image/png;base64, ${avatar ?? defaultAvatar}`}
+					alt="profile image"
+				/>
 			</button>
 
 			{editing && (
@@ -58,7 +65,7 @@ const Avatar = ({ avatar, onSelect }: Props) => {
 					</header>
 					<main>
 						{avatars.map((a) => (
-							<button key={a.name} onClick={() => handleAvatarSelect(a.avatar)}>
+							<button key={a.name} onClick={() => handleAvatarSelect(a)}>
 								<img src={`data:image/png;base64, ${a.avatar}`} />
 							</button>
 						))}

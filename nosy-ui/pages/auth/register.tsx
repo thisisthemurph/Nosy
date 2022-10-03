@@ -5,7 +5,6 @@ import { supabase } from "config";
 import { useSupabaseAuth } from "contexts/AuthContext";
 
 interface RegisterFormData {
-	username: string;
 	email: string;
 	password: string;
 }
@@ -24,17 +23,14 @@ const Register = () => {
 	const auth = useSupabaseAuth();
 	const router = useRouter();
 
-	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | undefined>();
 	const [formData, setFormData] = useReducer(formReducer, {
-		username: "",
 		email: "",
 		password: "",
 	});
 
 	const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		console.log("Clicked Register");
 
 		const { user, error } = await supabase.auth.signUp(formData);
 		console.log({ user, error });
@@ -44,11 +40,13 @@ const Register = () => {
 			return;
 		}
 
+		// The user has registered and they have an email address
 		if (user?.email) {
 			router.push(`/auth/login?email=${user.email}`);
 			return;
 		}
 
+		// Fallback after user is registered
 		router.push(`/auth/login`);
 	};
 
@@ -61,17 +59,6 @@ const Register = () => {
 			{error && <p>{error}</p>}
 
 			<form className="form" onSubmit={handleSubmit}>
-				<fieldset>
-					<label htmlFor="username">Name: </label>
-					<input
-						type="username"
-						name="username"
-						id="username"
-						className="username"
-						value={formData.username}
-						onChange={handleChange}
-					/>
-				</fieldset>
 				<fieldset>
 					<label htmlFor="email">Email: </label>
 					<input

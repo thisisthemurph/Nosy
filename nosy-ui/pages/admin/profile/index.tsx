@@ -1,9 +1,13 @@
-import Avatar from "components/Avatar";
 import { useSupabaseAuth } from "contexts/AuthContext";
 import { useEffect, useState } from "react";
-
 import { useForm, SubmitHandler } from "react-hook-form";
+
+import Avatar from "components/Avatar";
+import { ProfileAttributes, ProfileAvatar } from "types/User";
+
 import styles from "styles/Profile.module.scss";
+import useAvatar from "hooks/useAvatar";
+import { supabase } from "config";
 
 interface IFormInput {
 	username: string;
@@ -12,30 +16,41 @@ interface IFormInput {
 }
 
 const Profile = () => {
-	const [avatar, setAvatar] = useState<string>("");
-	const { user, profile, loadingProfile, updateProfile } = useSupabaseAuth();
-	const [currentPasswordRequired, setCurrentPasswordRequired] = useState<false | string>(
-		false
-	);
+	const { getUserAvatar, updateAvatar } = useAvatar();
+	const [currentAvatar, setCurrentAvatar] = useState<string | null>(null);
+
+	const auth = useSupabaseAuth();
+
+	const [passworVerificationdRequired, setPassworVerificationRequired] = useState<
+		false | string
+	>(false);
 
 	useEffect(() => {
-		if (profile?.avatar) {
-			setAvatar(profile.avatar);
+		const user = supabase.auth.user();
+
+		if (!user) {
+			return;
 		}
-	}, [profile?.avatar]);
+
+		getUserAvatar(user)
+			.then((a) => setCurrentAvatar(a?.avatar || null))
+			.catch(console.error);
+	}, [auth.profile?.avatarName]);
 
 	const { register, handleSubmit } = useForm<IFormInput>();
 
 	const onSubmit: SubmitHandler<IFormInput> = async (data) => {
 		console.log(data);
 
-		await updateProfile.username(data.username);
-		await updateProfile.email(data.email, data.currentPassword);
+		const attributes = auth.getProfileAttributes();
+		const updates: ProfileAttributes = { ...attributes, username: data.username };
+
+		auth.updateProfileAttributes(updates);
 	};
 
 	const handleEmailChange = (value: string) => {
-		const emailHasChanged = user?.email !== value;
-		setCurrentPasswordRequired(
+		const emailHasChanged = auth.profile?.email !== value;
+		setPassworVerificationRequired(
 			emailHasChanged ? "You must verify your current password." : false
 		);
 	};
@@ -54,18 +69,17 @@ const Profile = () => {
 		};
 	};
 
-	const handleAvatarChange = async (avatar: string) => {
-		await updateProfile.avatar(avatar);
-		setAvatar(avatar);
+	const handleAvatarChange = async (avatar: ProfileAvatar) => {
+		await updateAvatar(avatar.name);
 	};
 
-	if (!user || loadingProfile || !profile) {
-		return <h3>Loading... = {`${loadingProfile}`}</h3>;
+	if (!auth.profile) {
+		return <h3>Loading...</h3>;
 	}
 
 	return (
 		<form className={styles.profileContainer} onSubmit={handleSubmit(onSubmit)}>
-			<Avatar avatar={avatar} onSelect={handleAvatarChange} />
+			<Avatar avatar={currentAvatar} onSelect={handleAvatarChange} />
 
 			<fieldset>
 				<label htmlFor="username">Username: </label>
@@ -74,21 +88,21 @@ const Profile = () => {
 						required: "Your username cannot be blank.",
 						minLength: 3,
 					})}
-					defaultValue={profile.username}
+					defaultValue={auth.profile?.username}
 				/>
 			</fieldset>
 
 			<fieldset>
 				<label htmlFor="email">Email: </label>
-				<input type="email" {...registerEmail()} defaultValue={user.email} />
+				<input type="email" {...registerEmail()} defaultValue={auth.profile?.email} />
 			</fieldset>
 
-			{currentPasswordRequired && (
+			{passworVerificationdRequired && (
 				<fieldset>
 					<label htmlFor="currentPassword">Current password: </label>
 					<input
 						type="password"
-						{...register("currentPassword", { required: currentPasswordRequired })}
+						{...register("currentPassword", { required: passworVerificationdRequired })}
 					/>
 				</fieldset>
 			)}

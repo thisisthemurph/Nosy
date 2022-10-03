@@ -19,7 +19,8 @@ const Login = () => {
 	const router = useRouter();
 	const auth = useSupabaseAuth();
 
-	const [loading, setLoading] = useState(false);
+	const { email } = router.query;
+
 	const [error, setError] = useState<string | undefined>();
 	const [formData, setFormData] = useReducer(formReducer, {
 		email: "",
@@ -35,9 +36,17 @@ const Login = () => {
 
 		if (error) {
 			setError(error.message);
+			console.log("Errored");
 			return;
 		}
 
+		if (!user?.user_metadata.username) {
+			router.push("/auth/completeAccount");
+			console.log("No user metadata");
+			return;
+		}
+
+		console.log("Navigating to /admin");
 		router.push("/admin");
 	};
 
@@ -47,9 +56,15 @@ const Login = () => {
 
 	return (
 		<>
-			{error && <p>{error}</p>}
-
 			<form onSubmit={handleLogin}>
+				<h2>Login</h2>
+
+				{error && <p>{error}</p>}
+
+				{email && (
+					<p>Thank you for registering, confirm your email address and then log in.</p>
+				)}
+
 				<fieldset>
 					<label htmlFor="email">Email: </label>
 					<input
