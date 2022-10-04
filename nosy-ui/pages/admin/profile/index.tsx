@@ -1,5 +1,5 @@
 import { useSupabaseAuth } from "contexts/AuthContext";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 
 import Avatar from "components/Avatar";
@@ -7,7 +7,6 @@ import { ProfileAttributes, ProfileAvatar } from "types/User";
 
 import styles from "styles/Profile.module.scss";
 import useAvatar from "hooks/useAvatar";
-import { supabase } from "config";
 
 interface IFormInput {
 	username: string;
@@ -16,32 +15,16 @@ interface IFormInput {
 }
 
 const Profile = () => {
-	const { getUserAvatar, updateAvatar } = useAvatar();
-	const [currentAvatar, setCurrentAvatar] = useState<string | null>(null);
-
 	const auth = useSupabaseAuth();
+	const { updateAvatar } = useAvatar();
 
 	const [passworVerificationdRequired, setPassworVerificationRequired] = useState<
 		false | string
 	>(false);
 
-	useEffect(() => {
-		const user = supabase.auth.user();
-
-		if (!user) {
-			return;
-		}
-
-		getUserAvatar(user)
-			.then((a) => setCurrentAvatar(a?.avatar || null))
-			.catch(console.error);
-	}, [auth.profile?.avatarName]);
-
 	const { register, handleSubmit } = useForm<IFormInput>();
 
 	const onSubmit: SubmitHandler<IFormInput> = async (data) => {
-		console.log(data);
-
 		const attributes = auth.getProfileAttributes();
 		const updates: ProfileAttributes = { ...attributes, username: data.username };
 
@@ -79,7 +62,12 @@ const Profile = () => {
 
 	return (
 		<form className={styles.profileContainer} onSubmit={handleSubmit(onSubmit)}>
-			<Avatar avatar={currentAvatar} onSelect={handleAvatarChange} />
+			<Avatar
+				variant="Normal"
+				avatar={auth.profile.avatarName}
+				onClick={undefined}
+				onSelect={handleAvatarChange}
+			/>
 
 			<fieldset>
 				<label htmlFor="username">Username: </label>

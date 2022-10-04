@@ -18,6 +18,24 @@ const useAvatar = () => {
 		return avatar;
 	};
 
+	const getAllAvatars = async (): Promise<ProfileAvatar[]> => {
+		const { data: allAvatars, error } = await supabase
+			.from<ProfileAvatar>("avatars")
+			.select("name, avatar");
+
+		if (error) {
+			console.error(error);
+			return [];
+		}
+
+		if (!allAvatars) {
+			console.warn("No avatars were found");
+			return [];
+		}
+
+		return allAvatars;
+	};
+
 	const getAvatar = async (name: string): Promise<ProfileAvatar | null> => {
 		const { data: avatar, error } = await supabase
 			.from<ProfileAvatar>("avatars")
@@ -59,7 +77,7 @@ const useAvatar = () => {
 		}
 	};
 
-	return { getAvatar, getUserAvatar, getDefaultAvatar, updateAvatar };
+	return { getAllAvatars, getAvatar, getUserAvatar, getDefaultAvatar, updateAvatar };
 };
 
 export default useAvatar;

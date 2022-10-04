@@ -9,16 +9,10 @@ import {
 } from "@supabase/supabase-js";
 
 import { supabase } from "config";
-// import { useProfile } from "hooks/useProfile";
 import { ProfileAttributes, ProfileUser } from "types/User";
 
 interface SupabaseAuthContext {
 	profile: ProfileUser | null;
-	// updateProfile: {
-	// 	avatar: (avatar: string) => Promise<void>;
-	// 	email: (email: string, password: string) => Promise<void>;
-	// 	username: (username: string) => Promise<void>;
-	// };
 	getProfileAttributes: () => ProfileAttributes;
 	updateProfileAttributes: (attributes: ProfileAttributes) => void;
 	signUp: (data: UserCredentials) => Promise<{
@@ -39,11 +33,6 @@ interface SupabaseAuthContext {
 
 const defaultValue: SupabaseAuthContext = {
 	profile: null,
-	// updateProfile: {
-	// 	avatar: (avatar: string) => new Promise((resolve) => resolve()),
-	// 	email: (email: string) => new Promise((resolve) => resolve()),
-	// 	username: (username: string) => new Promise((resolve) => resolve()),
-	// },
 	getProfileAttributes: () => ({ username: undefined, avatarName: undefined }),
 	updateProfileAttributes: (attributes: ProfileAttributes) => {
 		return;
@@ -77,7 +66,6 @@ type SupabaseAuthProviderProps = { children: React.ReactNode };
 export const SupabaseAuthProvider = ({ children }: SupabaseAuthProviderProps) => {
 	const [user, setUser] = useState<User | null>(null);
 	const [loading, setLoading] = useState(false);
-	// const { update: updateProfile } = useProfile(user);
 
 	useEffect(() => {
 		const setCookie = async (event: AuthChangeEvent, session: Session) => {
