@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { join } from "helpers/css";
 import CloseButton from "./CloseButton";
+import Avatar from "components/Avatar";
 import { useSupabaseAuth } from "contexts/AuthContext";
 
 import styles from "styles/Nav.module.scss";
@@ -17,7 +18,14 @@ const Nav = () => {
 	const closeDrawer = () => setIsOpen(false);
 	const draweStyles = join(styles.nav__drawer, isOpen ? styles["nav__drawer--open"] : "");
 
-	const handleSignOut = async () => {
+	const handleSignOut = async (confirmSignOut: boolean = false) => {
+		if (confirmSignOut) {
+			const action = confirm("Would you like to log out?");
+			if (!action) {
+				return;
+			}
+		}
+
 		const { error } = await auth.signOut();
 
 		if (error) {
@@ -31,29 +39,57 @@ const Nav = () => {
 	return (
 		<nav className={styles.nav}>
 			<MenuButton click={openDrawer} />
-			<section className={draweStyles}>
+
+			<div className={draweStyles}>
 				<header className={styles.nav__header}>
-					<h2 className={styles.nav__logo}>Nosy</h2>
+					{auth.profile && (
+						<Avatar
+							avatar={auth.profile?.avatarName ?? null}
+							variant="Icon"
+							onClick={() => handleSignOut(true)}
+							onSelect={undefined}
+						/>
+					)}
+
+					{!auth.profile && <h2>Nosy</h2>}
+
 					<CloseButton click={closeDrawer} />
 				</header>
 
-				<Link href="/">
-					<a className={styles.nav__link} onClick={closeDrawer}>
-						Home
-					</a>
-				</Link>
-				<Link href="/about">
-					<a className={styles.nav__link} onClick={closeDrawer}>
-						About
-					</a>
-				</Link>
+				<main className={styles.nav__main}>
+					<Link href="/">
+						<a className={styles.nav__link} onClick={closeDrawer}>
+							Home
+						</a>
+					</Link>
+					<Link href="/about">
+						<a className={styles.nav__link} onClick={closeDrawer}>
+							About
+						</a>
+					</Link>
+
+					{auth.profile && (
+						<>
+							<Link href="/admin">
+								<a className={styles.nav__link} onClick={closeDrawer}>
+									Admin
+								</a>
+							</Link>
+							<Link href="/admin/profile">
+								<a className={styles.nav__link} onClick={closeDrawer}>
+									Profile
+								</a>
+							</Link>
+						</>
+					)}
+				</main>
 
 				{auth.profile && (
-					<button className="signOut" onClick={handleSignOut}>
-						Log out
-					</button>
+					<footer className={styles.nav__footer}>
+						<p>This is the footer of the navigation.</p>
+					</footer>
 				)}
-			</section>
+			</div>
 		</nav>
 	);
 };
